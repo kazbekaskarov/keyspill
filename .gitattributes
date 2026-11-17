@@ -1,0 +1,3 @@
+# LF everywhere: a CRLF shebang in bin/keyspill.js breaks `npx keyspill` on macOS and Linux.
+* text=auto eol=lf
+*.png binary

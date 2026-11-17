@@ -1,0 +1,18 @@
+name: Support another agent
+description: Ask keyspill to scan an AI coding agent it doesn't know yet
+labels: [sources]
+body:
+  - type: input
+    id: agent
+    attributes:
+      label: Agent
+      placeholder: e.g. Aider, Zed AI, Amp
+    validations:
+      required: true
+  - type: textarea
+    id: location
+    attributes:
+      label: Where does it keep its session history?
+      description: Paths on macOS, Linux and/or Windows, and the file format (JSONL, JSON, SQLite…). Don't attach real session files.
+    validations:
+      required: true

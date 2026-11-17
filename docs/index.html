@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>keyspill · find the secrets your AI coding agents have already seen</title>
+<meta name="description" content="One command scans your local Claude Code, Codex, Cursor, Copilot CLI, Gemini CLI and opencode history for API keys and passwords your agents saw. 100% local, open source, zero dependencies.">
+<link rel="canonical" href="https://kazbekaskarov.github.io/keyspill/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="keyspill · what your AI agents have already seen">
+<meta property="og:description" content="npx keyspill scans local agent session history for leaked API keys and tells you which to rotate. 100% local, zero dependencies.">
+<meta property="og:url" content="https://kazbekaskarov.github.io/keyspill/">
+<meta property="og:image" content="https://kazbekaskarov.github.io/keyspill/card.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://kazbekaskarov.github.io/keyspill/card.png">
+<meta name="theme-color" content="#FFCF33">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='2' y='6' width='28' height='20' rx='4' fill='%23FFCF33' transform='rotate(-6 16 16)'/%3E%3Ccircle cx='24' cy='11' r='2.5' fill='%23121417'/%3E%3C/svg%3E">
+<style>
+:root{
+  --paper:#E4E7EB;--paper-2:#F2F4F6;--ink:#121417;--ink-soft:#3A3F46;--slate:#5F6670;
+  --tag:#FFCF33;--red:#C8102E;--amber:#9A5C00;--line:#C5CAD1;--surface:#fff;--code-bg:#121417;--code-fg:#E4E7EB;
+  --max:1120px;
+}
+/* Light only, on purpose: the brand is an evidence tag on paper, matching the HTML report and share card. */
+:root{color-scheme:light}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.55 "Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:inherit}
+.wrap{max-width:var(--max);margin:0 auto;padding:0 24px}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.skip{position:absolute;left:-9999px}.skip:focus{left:16px;top:16px;background:var(--tag);color:#121417;padding:8px 12px;z-index:10}
+
+/* nav */
+nav{display:flex;align-items:center;justify-content:space-between;padding:20px 0;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:20px;letter-spacing:-.01em;text-decoration:none}
+.brand i{width:26px;height:18px;background:var(--tag);border-radius:4px;transform:rotate(-6deg);position:relative;display:inline-block}
+.brand i::after{content:"";position:absolute;right:4px;top:4px;width:5px;height:5px;border-radius:50%;background:#121417}
+.links{display:flex;gap:20px;font-size:15px;font-weight:600}
+.links a{text-decoration:none;opacity:.85}.links a:hover{opacity:1;text-decoration:underline}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:48px;align-items:center;padding:48px 0 72px}
+.eyebrow{display:inline-block;font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin:0 0 16px}
+h1{font-size:clamp(40px,6vw,72px);line-height:1.08;letter-spacing:-.035em;margin:0 0 20px;font-weight:800}
+h1 mark{background:linear-gradient(transparent 12%,var(--tag) 12%,var(--tag) 92%,transparent 92%);color:#121417;padding:0 .08em;box-decoration-break:clone;-webkit-box-decoration-break:clone}
+.lede{font-size:clamp(18px,2vw,21px);color:var(--ink-soft);margin:0 0 28px;max-width:34ch}
+.cmd{display:flex;align-items:stretch;max-width:440px;border:2px solid var(--ink);background:var(--code-bg);color:var(--code-fg)}
+.cmd code{flex:1;padding:14px 18px;font-size:18px;white-space:nowrap;overflow:auto}
+.cmd code::before{content:"$ ";color:#8A929C}
+.cmd button{font:inherit;font-weight:700;font-size:15px;border:0;border-left:2px solid var(--ink);background:var(--tag);color:#121417;padding:0 18px;cursor:pointer;min-width:92px}
+.cmd button:hover{filter:brightness(.95)}
+.trust{display:flex;flex-wrap:wrap;gap:8px 18px;margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--slate)}
+.trust li::before{content:"✓ ";color:var(--ink);font-weight:700}
+.hero-card img{width:100%;height:auto;display:block}
+
+/* sections */
+section{padding:72px 0;border-top:2px solid var(--ink)}
+.kicker{font-size:13px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);margin:0 0 10px}
+h2{font-size:clamp(28px,3.6vw,42px);line-height:1.08;letter-spacing:-.025em;margin:0 0 16px;font-weight:800;max-width:22ch}
+.sub{color:var(--ink-soft);max-width:60ch;margin:0 0 36px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.tile{background:var(--surface);border:2px solid var(--ink);padding:24px}
+.tile h3{margin:0 0 8px;font-size:20px;letter-spacing:-.01em}
+.tile p{margin:0;color:var(--ink-soft);font-size:16px}
+.tile .tag{display:inline-block;font:700 12px/1 ui-monospace,SFMono-Regular,Menlo,monospace;text-transform:uppercase;letter-spacing:.08em;padding:6px 8px;margin:0 0 14px;background:var(--tag);color:#121417}
+
+.shot{max-width:980px}
+.shot img{display:block;width:100%;height:auto}
+
+.agents{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:0;padding:0;list-style:none}
+.agents li{background:var(--surface);border:2px solid var(--ink);padding:16px 18px}
+.agents strong{display:block;font-size:17px}
+.agents span{display:block;font:13px/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--slate);margin-top:4px;word-break:break-all}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 28px;padding:0;list-style:none}
+.chips li{border:2px solid var(--ink);padding:6px 12px;font-weight:600;font-size:15px;background:var(--surface)}
+.chips li.crit{border-left:8px solid var(--red)}
+.chips li.high{border-left:8px solid var(--amber)}
+.note{border-left:6px solid var(--tag);padding:4px 0 4px 16px;color:var(--ink-soft);max-width:70ch;margin:0}
+
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:48px;align-items:start}
+.checks{margin:0;padding:0;list-style:none}
+.checks li{padding:14px 0;border-bottom:1px solid var(--line)}
+.checks li:first-child{padding-top:0}
+.checks strong{display:block;font-size:18px}
+.checks span{color:var(--ink-soft)}
+pre{background:var(--code-bg);color:var(--code-fg);padding:18px 20px;border:2px solid var(--ink);overflow:auto;font-size:15px;line-height:1.6;margin:0 0 16px}
+pre .c{color:#8A929C}
+.fine{font-size:14px;color:var(--slate);margin:0}
+
+.report{max-height:540px;overflow:hidden;border:2px solid var(--ink);position:relative}
+.report::after{content:"";position:absolute;left:0;right:0;bottom:0;height:90px;background:linear-gradient(transparent,var(--paper))}
+.report img{width:100%;height:auto;display:block}
+
+details{border-bottom:1px solid var(--line);padding:18px 0}
+details:first-of-type{border-top:2px solid var(--ink)}
+summary{cursor:pointer;font-weight:700;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";font-weight:400;font-size:24px;line-height:1}
+details[open] summary::after{content:"−"}
+details p{margin:10px 0 0;color:var(--ink-soft);max-width:70ch}
+
+.cta{background:var(--tag);color:#121417;border-top:2px solid #121417}
+.cta h2{max-width:none}
+.cta .cmd{border-color:#121417}
+.cta .cmd button{border-left-color:#121417;background:#fff}
+.cta-row{display:flex;flex-wrap:wrap;align-items:center;gap:20px 32px}
+.cta-row a{font-weight:700}
+
+footer{padding:32px 0 48px;color:var(--slate);font-size:14px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px}
+footer a{color:var(--ink)}
+
+@media (max-width:860px){
+  .hero,.split{grid-template-columns:1fr}
+  .hero{padding-top:24px;gap:36px}
+  .grid3{grid-template-columns:1fr}
+  section{padding:56px 0}
+}
+@media (max-width:480px){
+  .wrap{padding:0 16px}
+  .links{gap:14px}
+  .links .hide-sm{display:none}
+  .cmd code{font-size:16px;padding:12px 14px}
+}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+  <nav aria-label="Main">
+    <a class="brand" href="./"><i aria-hidden="true"></i>keyspill</a>
+    <div class="links">
+      <a class="hide-sm" href="#how">How it works</a>
+      <a class="hide-sm" href="#privacy">Privacy</a>
+      <a href="https://www.npmjs.com/package/keyspill">npm</a>
+      <a href="https://github.com/kazbekaskarov/keyspill">GitHub</a>
+    </div>
+  </nav>
+
+  <main id="main">
+    <div class="hero">
+      <div>
+        <p class="eyebrow">Open-source CLI · MIT</p>
+        <h1>Your AI agents have already <mark>seen your keys.</mark></h1>
+        <p class="lede">keyspill reads the session history Claude Code, Codex, Cursor and friends keep on your disk, and tells you exactly which secrets to rotate.</p>
+        <div class="cmd">
+          <code id="cmd1">npx keyspill</code>
+          <button type="button" data-copy="npx keyspill" aria-label="Copy command">Copy</button>
+        </div>
+        <ul class="trust">
+          <li>100% local</li>
+          <li>Zero dependencies</li>
+          <li>Never prints a full key</li>
+          <li>Node 18+</li>
+        </ul>
+      </div>
+      <div class="hero-card">
+        <img src="card.png" width="1270" height="667" alt="A yellow evidence tag reading: 11 secrets my AI agents have already seen. Stripe live secret key, database URL with password, Supabase service_role key, Anthropic API key. 3 critical, 5 high, 3 medium.">
+      </div>
+    </div>
+
+    <section id="how">
+      <p class="kicker">Why this exists</p>
+      <h2>Coding agents read files. Your .env is a file.</h2>
+      <p class="sub">Once a key lands in a session, it was sent to the model provider and now sits in plain text in <code>~/.claude</code>, <code>~/.codex</code> or Cursor's database, often synced to backups. keyspill shows how each one got there.</p>
+      <div class="grid3">
+        <div class="tile">
+          <span class="tag">agent read it</span>
+          <h3>The agent opened a file</h3>
+          <p>It ran <code>cat .env</code>, read <code>~/.aws/credentials</code> or a config to debug something. The whole file went into the context.</p>
+        </div>
+        <div class="tile">
+          <span class="tag">you pasted it</span>
+          <h3>You pasted it in chat</h3>
+          <p>"Here's my key, why does it 401?" Fast, convenient, and now in the log for good.</p>
+        </div>
+        <div class="tile">
+          <span class="tag">agent wrote it</span>
+          <h3>The agent typed it into a command</h3>
+          <p>A connection string inlined into a migration script or a <code>curl</code> call the agent composed for you.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <p class="kicker">One command</p>
+      <h2>A report you can act on in a minute.</h2>
+      <p class="sub">Every finding comes with severity, which agent and project, when it was last seen, how it got there, and a direct link to rotate it.</p>
+      <div class="shot">
+        <img src="terminal.png" width="1270" height="760" loading="lazy" alt="Terminal output of npx keyspill: 11 secrets seen by your agents, 3 critical, 5 high, 3 medium. Each entry shows a masked value, the agent, the project, the last-seen date and a rotate link.">
+      </div>
+    </section>
+
+    <section>
+      <p class="kicker">Coverage</p>
+      <h2>Seven agents, on macOS, Linux and Windows.</h2>
+      <p class="sub">keyspill knows where each one keeps its history and reads it without touching it.</p>
+      <ul class="agents">
+        <li><strong>Claude Code</strong><span>~/.claude/projects</span></li>
+        <li><strong>Codex</strong><span>~/.codex/sessions</span></li>
+        <li><strong>Cursor</strong><span>state.vscdb, ~/.cursor/chats</span></li>
+        <li><strong>GitHub Copilot CLI</strong><span>~/.copilot/session-state</span></li>
+        <li><strong>Gemini CLI</strong><span>~/.gemini/tmp</span></li>
+        <li><strong>opencode</strong><span>~/.local/share/opencode</span></li>
+        <li><strong>Cline / Roo / Kilo</strong><span>VS Code, Cursor, Windsurf globalStorage</span></li>
+      </ul>
+    </section>
+
+    <section>
+      <p class="kicker">What it finds</p>
+      <h2>30 high-signal rules. Low noise on purpose.</h2>
+      <p class="sub">A false alarm in a security tool costs more trust than a miss, so the rules are conservative.</p>
+      <ul class="chips" aria-label="Detected secret types">
+        <li class="crit">AWS keys</li><li class="crit">Stripe live keys</li><li class="crit">Private keys (PEM)</li><li class="crit">Database URLs with passwords</li><li class="crit">Supabase service_role</li>
+        <li class="high">OpenAI</li><li class="high">Anthropic</li><li class="high">GitHub</li><li class="high">GitLab</li><li class="high">Google API</li><li class="high">Slack</li><li class="high">Telegram</li><li class="high">Discord</li><li class="high">SendGrid</li><li class="high">Twilio</li><li class="high">npm</li><li class="high">PyPI</li><li class="high">Hugging Face</li><li class="high">Groq</li><li class="high">Replicate</li><li class="high">DigitalOcean</li><li class="high">Shopify</li>
+        <li>Unexpired JWTs</li><li>SECRET= / PASSWORD= in env files</li>
+      </ul>
+      <p class="note">Ignored by design: documentation example keys, placeholders like <code>USER:PASSWORD@HOST</code>, Supabase anon keys (public), expired JWTs, local <code>postgres:postgres@localhost</code>, and code like <code>API_KEY = process.env.API_KEY</code>.</p>
+    </section>
+
+    <section id="privacy">
+      <div class="split">
+        <div>
+          <p class="kicker">Privacy</p>
+          <h2>A secrets scanner that never phones home.</h2>
+          <p class="sub">You're pointing it at the most sensitive files on your machine. It should be boring and readable.</p>
+        </div>
+        <ul class="checks">
+          <li><strong>Runs entirely on your machine</strong><span>No network requests. The HTML report loads no fonts, scripts or analytics.</span></li>
+          <li><strong>Never shows a full secret</strong><span>Output is masked (<code>sk_live_••••••••fnwh</code>) with a short SHA-256 fingerprint.</span></li>
+          <li><strong>Read-only</strong><span>Your session files are never modified, copied or uploaded.</span></li>
+          <li><strong>Small enough to audit</strong><span>Zero dependencies, about 850 lines of plain JavaScript. <a href="https://github.com/kazbekaskarov/keyspill/tree/main/src">Read the source</a>.</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <div class="split">
+        <div>
+          <p class="kicker">Stop it happening again</p>
+          <h2>Keep .env out of future sessions.</h2>
+          <p class="sub">Adds <code>permissions.deny</code> rules to Claude Code so it can't read <code>.env*</code>, <code>*.pem</code>, <code>*.key</code>, <code>secrets/</code>, <code>~/.aws</code> or <code>~/.ssh</code>, and a <code>.cursorignore</code> to your project. Your settings are backed up first.</p>
+        </div>
+        <div>
+<pre><span class="c"># preview the changes</span>
+npx keyspill protect
+
+<span class="c"># write them</span>
+npx keyspill protect --apply</pre>
+          <p class="fine">Deny rules cover file reads, not shell commands like <code>cat .env</code>. Keep reading what you approve.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="split">
+        <div>
+          <p class="kicker">Share card</p>
+          <h2>Show the count, never the keys.</h2>
+          <p class="sub"><code>npx keyspill --card</code> writes a local HTML report with every finding masked, plus a card you can download as a PNG. The card has counts and key types only.</p>
+          <div class="cmd">
+            <code>npx keyspill --card</code>
+            <button type="button" data-copy="npx keyspill --card" aria-label="Copy command">Copy</button>
+          </div>
+        </div>
+        <div class="report">
+          <img src="report.png" width="1270" height="2000" loading="lazy" alt="The keyspill HTML report: a headline 'Your AI agents have seen 11 secrets', the share card, and a list of masked findings with Rotate key buttons.">
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <p class="kicker">FAQ</p>
+      <h2>Questions people ask first.</h2>
+      <details>
+        <summary>Does anything leave my machine?</summary>
+        <p>No. keyspill makes no network requests. It reads local files, prints a masked report and, if you ask, writes an HTML file next to you. That's it.</p>
+      </details>
+      <details>
+        <summary>It found a key. What now?</summary>
+        <p>Rotate it. Each critical and high finding links to the provider's key page. Rotation is the fix: deleting the session log doesn't un-send what the provider already received.</p>
+      </details>
+      <details>
+        <summary>Can I run it in CI or a script?</summary>
+        <p>Yes. <code>--json</code> gives machine-readable output with masked values only, and the exit code is <code>1</code> when any critical or high secret is found. Use <code>--path &lt;dir&gt;</code> to scan other folders.</p>
+      </details>
+      <details>
+        <summary>It flagged something that isn't a secret.</summary>
+        <p>Please <a href="https://github.com/kazbekaskarov/keyspill/issues/new">open an issue</a> with the masked line from the output (never the real value). False positives get fixed fast.</p>
+      </details>
+      <details>
+        <summary>My agent isn't supported.</summary>
+        <p>Open an issue saying where it keeps its history, or send a PR adding a source in <code>src/sources.js</code>.</p>
+      </details>
+    </section>
+  </main>
+</div>
+
+<section class="cta">
+  <div class="wrap">
+    <h2>Find out what your agents have seen.</h2>
+    <div class="cta-row">
+      <div class="cmd">
+        <code>npx keyspill</code>
+        <button type="button" data-copy="npx keyspill" aria-label="Copy command">Copy</button>
+      </div>
+      <a href="https://github.com/kazbekaskarov/keyspill">Star on GitHub →</a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>keyspill · MIT · made by <a href="https://github.com/kazbekaskarov">Kazbek Askarov</a></span>
+    <span><a href="https://github.com/kazbekaskarov/keyspill">GitHub</a> · <a href="https://www.npmjs.com/package/keyspill">npm</a> · <a href="https://github.com/kazbekaskarov/keyspill/blob/main/CHANGELOG.md">Changelog</a></span>
+  </footer>
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function (b) {
+  b.addEventListener('click', function () {
+    var text = b.getAttribute('data-copy');
+    var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1500); };
+    if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(done, function () {});
+    else { var t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); try { document.execCommand('copy'); done(); } catch (e) {} t.remove(); }
+  });
+});
+</script>
+</body>
+</html>

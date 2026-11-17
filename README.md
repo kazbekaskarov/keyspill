@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/keyspill)](https://www.npmjs.com/package/keyspill) [![test](https://github.com/kazbekaskarov/keyspill/actions/workflows/test.yml/badge.svg)](https://github.com/kazbekaskarov/keyspill/actions/workflows/test.yml) ![zero dependencies](https://img.shields.io/badge/dependencies-0-brightgreen)
 
-**Find the secrets your AI coding agents have already seen.**
+**Find the secrets your AI coding agents have already seen.** · [Website](https://kazbekaskarov.github.io/keyspill/)
 
 ![keyspill output in a terminal](docs/terminal.png)
 

@@ -1,0 +1,35 @@
+name: False positive or missed secret
+description: keyspill flagged something that isn't a secret, or missed one that is
+labels: [rules]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Never paste a real secret here**, not even an expired one. Use the masked line from keyspill's output and describe the shape (prefix, length, characters).
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What happened?
+      options:
+        - Flagged something that is not a secret
+        - Missed a real secret
+    validations:
+      required: true
+  - type: textarea
+    id: masked
+    attributes:
+      label: Masked output line
+      description: Copy the finding from keyspill's terminal output (values are already masked).
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Where did it come from?
+      description: e.g. "a README example in a Copilot CLI session", "Supabase anon key", "a Sentry token sntrys_… (not detected)"
+  - type: input
+    id: version
+    attributes:
+      label: keyspill version
+      placeholder: npx keyspill --version
