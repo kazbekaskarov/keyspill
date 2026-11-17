@@ -52,6 +52,16 @@ test('DB URLs: one finding per credentials, doc placeholders ignored, password n
   assert.deepEqual(by('env-secret').filter((f) => f.varName === 'MONGODB_PASSWORD'), [], 'already covered by the URL finding');
 });
 
+test('DB URLs: login and hostname are masked, provider domain stays readable', () => {
+  const pg = by('db-url').find((f) => f.display.startsWith('postgres'));
+  const mongo = by('db-url').find((f) => f.display.startsWith('mongodb'));
+  assert.equal(pg.display, 'postgres://•••:••••••@••••.acme-internal.net');
+  assert.equal(mongo.display, 'mongodb+srv://ka•••:••••••@••••.mongodb.net');
+  for (const f of [pg, mongo]) {
+    assert.ok(!/db\.prod|hexweave|ab12cd|kaz_db|:5432/.test(f.display), `leaked infra in ${f.display}`);
+  }
+});
+
 test('Copilot CLI: origin and project come from its event format', () => {
   const mongo = by('db-url').find((f) => f.display.startsWith('mongodb'));
   assert.deepEqual(mongo.tools, ['Copilot CLI']);

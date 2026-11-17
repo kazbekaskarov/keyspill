@@ -148,10 +148,21 @@ function checkDbUrl(value) {
   return true;
 }
 
+// Reports get screenshotted and shared, so only the provider's domain stays readable:
+//   mongodb+srv://kaz_db:••••••@••••.mongodb.net   postgres://ap•••:••••••@••••.acme-internal.net
 function displayDbUrl(value) {
   const m = parseDbUrl(value);
   if (!m) return maskTail(value);
-  return `${m.scheme}://${m.user}:${'•'.repeat(6)}${m.pass.length >= 16 ? m.pass.slice(-2) : ''}@${m.host}`;
+  const user = m.user.length > 3 ? m.user.slice(0, 2) + '•••' : '•••';
+  return `${m.scheme}://${user}:${'•'.repeat(6)}@${maskHost(m.host)}`;
+}
+
+function maskHost(host) {
+  const name = host.replace(/:\d+$/, '');
+  if (LOCAL_HOSTS.test(name)) return name;
+  if (/^[\d.]+$/.test(name) || name.startsWith('[')) return '••••'; // IP address
+  const labels = name.split('.');
+  return labels.length >= 2 ? '••••.' + labels.slice(-2).join('.') : '••••';
 }
 
 function checkJwt(value) {

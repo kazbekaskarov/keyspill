@@ -69,7 +69,7 @@ npx keyspill protect --apply  # write those rules
       1× · Claude Code · ~/work/shop · last 2026-11-02
       agent read it 1×
       → rotate: https://dashboard.stripe.com/apikeys
-  ● Database URL with password     postgres://app:••••••Ri@db.prod.acme-internal.net:5432
+  ● Database URL with password     postgres://•••:••••••@••••.acme-internal.net
       1× · Claude Code · ~/work/shop · last 2026-11-02
       agent read it 1×
 

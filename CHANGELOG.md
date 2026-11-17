@@ -2,8 +2,9 @@
 
 All notable changes to this project are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 0.1.1 — 2026-11-17
 
+- Database URLs now mask the login and hostname as well as the password, so screenshots of a report don't reveal internal infrastructure: `mongodb+srv://ka•••:••••••@••••.mongodb.net`. Only the provider's domain stays readable.
 - Package `homepage` now points to the website.
 
 ## 0.1.0 — 2026-11-18

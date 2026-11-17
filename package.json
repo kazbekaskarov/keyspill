@@ -1,6 +1,6 @@
 {
   "name": "keyspill",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Find the secrets your AI coding agents have already seen. Scans Claude Code, Codex, Cursor, Gemini CLI, opencode and more. 100% local, zero dependencies.",
   "type": "module",
   "bin": {
