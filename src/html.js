@@ -59,7 +59,7 @@ export function renderHtml({ findings, stats }) {
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>keyspill report: ${s.total} secrets</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 4C32 4 11 28 11 40.5a21 21 0 0 0 42 0C53 28 32 4 32 4Z' fill='%23FFCF33'/%3E%3Ccircle cx='32' cy='37' r='5.5' fill='%23121417'/%3E%3Cpath d='M29 40h6l2.5 11h-11Z' fill='%23121417'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121417'/%3E%3Cg transform='translate(32 32) scale(.74) translate(-32 -32.75)'%3E%3Cpath d='M32 4C32 4 11 28 11 40.5a21 21 0 0 0 42 0C53 28 32 4 32 4Z' fill='%23FFCF33'/%3E%3Ccircle cx='32' cy='37' r='5.5' fill='%23121417'/%3E%3Cpath d='M29 40h6l2.5 11h-11Z' fill='%23121417'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 :root{--paper:${COLORS.paper};--ink:${COLORS.ink};--tag:${COLORS.tag};--red:${COLORS.red};--amber:${COLORS.amber};--slate:${COLORS.slate}}
 *{box-sizing:border-box}
