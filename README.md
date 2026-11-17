@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="docs/logo.svg" alt="" width="72" height="72">
+
 # keyspill
 
 **Find the secrets your AI coding agents have already seen.**
