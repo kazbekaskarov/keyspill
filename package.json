@@ -1,0 +1,45 @@
+{
+  "name": "keyspill",
+  "version": "0.1.0",
+  "description": "Find the secrets your AI coding agents have already seen. Scans Claude Code, Codex, Cursor, Gemini CLI, opencode and more. 100% local, zero dependencies.",
+  "type": "module",
+  "bin": {
+    "keyspill": "bin/keyspill.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "prepublishOnly": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Kazbek Askarov",
+  "homepage": "https://github.com/kazbekaskarov/keyspill#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kazbekaskarov/keyspill.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kazbekaskarov/keyspill/issues"
+  },
+  "keywords": [
+    "security",
+    "secrets",
+    "claude-code",
+    "codex",
+    "cursor",
+    "copilot",
+    "ai-agents",
+    "api-keys",
+    "secret-scanning",
+    "llm",
+    "cli"
+  ],
+  "license": "MIT"
+}
