@@ -9,6 +9,8 @@
 [![dependencies](https://img.shields.io/badge/dependencies-0-FFCF33?labelColor=121417)](package.json)
 [![license](https://img.shields.io/npm/l/keyspill?color=FFCF33&labelColor=121417)](LICENSE)
 
+<a href="https://www.producthunt.com/posts/keyspill?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-keyspill" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1320494&theme=light" alt="keyspill on Product Hunt" width="250" height="54"></a>
+
 [Website](https://kazbekaskarov.github.io/keyspill/) · [npm](https://www.npmjs.com/package/keyspill) · [Changelog](CHANGELOG.md) · [Report a false positive](https://github.com/kazbekaskarov/keyspill/issues/new?template=false-positive.yml)
 
 <img src="docs/terminal.png" alt="keyspill output in a terminal" width="760">
